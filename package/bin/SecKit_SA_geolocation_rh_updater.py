@@ -81,13 +81,13 @@ class GeoipUpdateHandler(rest_handler.RESTHandler):
             proxy_settings = {}
             logger.info("Trying to update")
             with tempfile.NamedTemporaryFile(
-                mode="w", suffix=".conf", prefix="GeoIP"
-            ) as file:
+                        mode="w", suffix=".conf", prefix="GeoIP"
+                    ) as file:
                 file.write("\nAccountID " + id)
                 file.write("\nLicenseKey " + token)
                 file.write("\nEditionIDs " + db)
 
-                if proxy_settings == {}:
+                if not proxy_settings:
                     logger.debug("no proxy")
                 else:
                     file.write(
@@ -96,7 +96,7 @@ class GeoipUpdateHandler(rest_handler.RESTHandler):
                         + ":"
                         + proxy_settings["proxy_port"]
                     )
-                    if not proxy_settings["proxy_username"] is None:
+                    if proxy_settings["proxy_username"] is not None:
                         file.write(
                             "\nProxyUserPassword "
                             + proxy_settings["proxy_username"]

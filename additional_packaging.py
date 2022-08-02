@@ -27,7 +27,7 @@ def additional_packaging(ta_name=None,outputdir="output"):
 
     p = "geoipupdate_4.8.0_linux_amd64"
     url = f'https://github.com/maxmind/geoipupdate/releases/download/v4.8.0/{p}.tar.gz'
-    
+
     response = requests.get(url, stream=True)
     if response.status_code == 200:
         f = NamedTemporaryFile(delete=False)

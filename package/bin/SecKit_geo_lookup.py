@@ -45,7 +45,7 @@ def main():
                 else:
                     city2reader = None
 
-                if not city2reader is None:
+                if city2reader is not None:
                     city2response = city2reader.city(result[ipfield])
                     result["country"] = city2response.country.iso_code
                     result["city"] = city2response.city.name

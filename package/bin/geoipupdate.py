@@ -28,24 +28,19 @@ def get_proxy_settings(session_key, logger):
         settings_cfm = conf_manager.ConfManager(
             session_key,
             APP_NAME,
-            realm="__REST_CREDENTIAL__#{}#configs/conf-{}_settings".format(
-                APP_NAME, CONF_NAME
-            ),
+            realm=f"__REST_CREDENTIAL__#{APP_NAME}#configs/conf-{CONF_NAME}_settings",
         )
-        ta_settings_conf = settings_cfm.get_conf(CONF_NAME + "_settings").get_all()
+
+        ta_settings_conf = settings_cfm.get_conf(f"{CONF_NAME}_settings").get_all()
     except Exception:
         logger.error(
-            "Failed to fetch proxy details from configuration. {}".format(
-                traceback.format_exc()
-            )
+            f"Failed to fetch proxy details from configuration. {traceback.format_exc()}"
         )
+
         sys.exit(1)
 
     proxy_settings = {}
-    proxy_stanza = {}
-    for key, value in ta_settings_conf["proxy"].items():
-        proxy_stanza[key] = value
-
+    proxy_stanza = dict(ta_settings_conf["proxy"].items())
     if int(proxy_stanza.get("proxy_enabled", 0)) == 0:
         return proxy_settings
     proxy_type = proxy_stanza.get("proxy_type")
@@ -57,13 +52,8 @@ def get_proxy_settings(session_key, logger):
     if proxy_username and proxy_password:
         proxy_username = quote_plus.compat.quote_plus(proxy_username)
         proxy_password = quote_plus.compat.quote_plus(proxy_password)
-        proxy_uri = "{}://{}:{}@{}:{}".format(
-            proxy_type,
-            proxy_username,
-            proxy_password,
-            proxy_url,
-            proxy_port,
-        )
+        proxy_uri = f"{proxy_type}://{proxy_username}:{proxy_password}@{proxy_url}:{proxy_port}"
+
     else:
         proxy_uri = f"{proxy_type}://{proxy_url}:{proxy_port}"
 
@@ -89,19 +79,13 @@ def get_log_level(session_key, logger):
         settings_cfm = conf_manager.ConfManager(
             session_key,
             APP_NAME,
-            realm="__REST_CREDENTIAL__#{}#configs/conf-{}_settings".format(
-                APP_NAME, CONF_NAME
-            ),
+            realm=f"__REST_CREDENTIAL__#{APP_NAME}#configs/conf-{CONF_NAME}_settings",
         )
 
-        logging_details = settings_cfm.get_conf(CONF_NAME + "_settings").get("logging")
 
-        log_level = (
-            logging_details.get("loglevel")
-            if (logging_details.get("loglevel"))
-            else "INFO"
-        )
-        return log_level
+        logging_details = settings_cfm.get_conf(f"{CONF_NAME}_settings").get("logging")
+
+        return (logging_details.get("loglevel")) or "INFO"
 
     except Exception:
         logger.error(
@@ -122,11 +106,10 @@ def get_account_details(session_key, account_name, logger):
         cfm = conf_manager.ConfManager(
             session_key,
             APP_NAME,
-            realm="__REST_CREDENTIAL__#{}#configs/conf-{}_account".format(
-                APP_NAME, CONF_NAME
-            ),
+            realm=f"__REST_CREDENTIAL__#{APP_NAME}#configs/conf-{CONF_NAME}_account",
         )
-        account_conf_file = cfm.get_conf(CONF_NAME + "_account")
+
+        account_conf_file = cfm.get_conf(f"{CONF_NAME}_account")
         logger.info(f"Fetched configured account {account_name} details.")
         return {
             "username": account_conf_file.get(account_name).get("username"),
@@ -134,10 +117,9 @@ def get_account_details(session_key, account_name, logger):
         }
     except Exception:
         logger.error(
-            "Failed to fetch account details from configuration. {}".format(
-                traceback.format_exc()
-            )
+            f"Failed to fetch account details from configuration. {traceback.format_exc()}"
         )
+
         sys.exit(1)
 
 
@@ -226,14 +208,14 @@ class GEOIPUPDATE(smi.Script):
                 "db": edition_ids,
                 "proxy_settings": get_proxy_settings(session_key, logger),
             }
-            logger.info(f"Requesting Update")
+            logger.info("Requesting Update")
             _, _ = simpleRequest(
                 "/services/SecKit_SA_geolocation_updater/update",
                 sessionKey=meta_configs["session_key"],
                 method="POST",
                 postargs=data,
             )
-            logger.info(f"Completed Request")
+            logger.info("Completed Request")
 
         except Exception as e:
             logger.exception(e)

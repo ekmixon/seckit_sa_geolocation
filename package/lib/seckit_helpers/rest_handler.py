@@ -109,7 +109,7 @@ class RESTHandler(PersistentServerConnectionApplication):
         """
 
         if len(path) > 0:
-            return method + "_" + re.sub(r"[^a-zA-Z0-9_]", "_", path).lower()
+            return f"{method}_" + re.sub(r"[^a-zA-Z0-9_]", "_", path).lower()
         else:
             return method
 
